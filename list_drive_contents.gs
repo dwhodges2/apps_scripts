@@ -32,8 +32,9 @@ function ListFolderContentsById(sheet, folder_name) {
     while (sub_folder_names.hasNext()) {
         sub_folder_name = sub_folder_names.next();
         name = sub_folder_name.getName();
+        sub_id = sub_folder_name.getId();
         sheet.appendRow([name]);
-        ListFolderContents(sheet, sub_folder_name);
+        ListFolderContentsById(sheet, sub_id);
     }
 }
 
@@ -59,8 +60,9 @@ function ListFolderContentsByName(sheet, folder_name) {
     while (sub_folder_names.hasNext()) {
         sub_folder_name = sub_folder_names.next();
         name = sub_folder_name.getName();
+        sub_id = sub_folder_name.getId();
         sheet.appendRow([name]);
-        ListFolderContents(sheet, sub_folder_name);
+        ListFolderContentsById(sheet, sub_id);
     }
 }
 
