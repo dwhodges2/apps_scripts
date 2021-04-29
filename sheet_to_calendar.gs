@@ -2,6 +2,11 @@
 
 // ID and tab of the calendar to add events to:
 var calendarID = "XXXXXXXXXXXXXXXXXX@group.calendar.google.com"
+// Alternatively, create a tab called "config" and put the variable in the first row:
+// calendarID | XXXXXXXXXXXXXXXXXX@group.calendar.google.com
+// var configSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('config');
+// var calendarID = configSheet.getSheetValues(1,2,1,1)[0][0];
+
 var sheetName = "Sheet1"
 var sleepTime = 800 // add time to prevent rate limiting of api
 
