@@ -1,14 +1,17 @@
-// Add calendar events based on rows in spreadsheet.
+// Scripts to update calendar based on spreadsheet data.
 
-// ID and tab of the calendar to add events to:
-var calendarID = "XXXXXXXXXXXXXXXXXX@group.calendar.google.com"
-// Alternatively, create a tab called "config" and put the variable in the first row:
-// calendarID | XXXXXXXXXXXXXXXXXX@group.calendar.google.com
-// var configSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('config');
-// var calendarID = configSheet.getSheetValues(1,2,1,1)[0][0];
+// name of tab from which to get data
+var sheetName = "Query"
+var sleepTime = 800  // to avoid rate limits
 
-var sheetName = "Sheet1"
-var sleepTime = 800 // add time to prevent rate limiting of api
+// Relies on a tab called "config" with key-value pairs in cols A-B.
+// Alternatively, could just define the variables here in the script.
+var configSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('config');
+// Use the "config" sheet (B1) to set the target calendar.
+var calendarID = configSheet.getSheetValues(1, 2, 1, 1)[0][0];
+// Use the "config" sheet (B2) to set the email for notifications.
+var emailAddress = configSheet.getSheetValues(2, 2, 1, 1)[0][0];
+
 
 function onOpen() {
     // Set up script menu
@@ -19,11 +22,19 @@ function onOpen() {
         .addToUi();
 }
 
+function test() {
+    subject = 'TEST'
+    message = 'This is a test notification from Google Sheets!'
+    Logger.log(calendarID);
+    MailApp.sendEmail(emailAddress, subject, message);
+}
 
 function make_alert(msg) {
     var ui = SpreadsheetApp.getUi();
     ui.alert(msg);
 }
+
+
 
 function seatReservations() {
     // Clear out the current events.
@@ -32,11 +43,11 @@ function seatReservations() {
     var spreadsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
     var eventCal = CalendarApp.getCalendarById(calendarID);
     var rows = spreadsheet.getDataRange().getValues();
-    // find out how many populated rows there are
-    var sheetLength = getLastPopulatedRow(spreadsheet);
+    var sheetLength = getLastPopulatedRow(spreadsheet); // find out how many populated rows there are
 
+    // Logger.log(rows.length);
     Logger.log(sheetLength);
-
+    // for (x=0; x<rows.length;x++) // This doesn't work, need to use getLastPopulatedRow fn!
     for (x = 0; x < sheetLength; x++) {
         var shift = rows[x];
         var startTime = shift[11];
@@ -57,8 +68,10 @@ function seatReservations() {
         eventCal.createEvent(title, startTime, endTime, otherOptions);
         Utilities.sleep(sleepTime);
     }
-    Logger.log("Events added: " + x);
-    make_alert("Events added: " + x);
+    var msg = "Events added: " + x
+    Logger.log(msg);
+    MailApp.sendEmail(emailAddress, 'seatReservations run complete', msg);
+    // make_alert(msg);
 }
 
 
@@ -79,16 +92,17 @@ function deleteEvents() {
 }
 
 
-function createTimeDrivenTriggers() {
+//  NOTE: Triggers now have a GUI; no need for this function.
+//  function createTimeDrivenTriggers() {
 
-    // Trigger every day at 01:00.
-    // https://developers.google.com/apps-script/reference/script/clock-trigger-builder#atHour(Integer)
-    ScriptApp.newTrigger('seatReservations')
-        .timeBased()
-        .atHour(1)
-        .everyDays(1)
-        .create();
-}
+//   // // Trigger every day at 01:00.
+//   // https://developers.google.com/apps-script/reference/script/clock-trigger-builder#atHour(Integer)
+//   ScriptApp.newTrigger('seatReservations')
+//       .timeBased()
+//       .atHour(1)
+//       .everyDays(1)
+//       .create();
+// }
 
 // Function borrowed from here:
 // https://support.google.com/docs/thread/4526642?hl=en
